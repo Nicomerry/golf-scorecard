@@ -17,7 +17,7 @@
   <script>
     if ('serviceWorker'in navigator) {
       window.addEventListner('load', () => {
-        navigator.serviceWorker.register('./se.js').catch()
+        navigator.serviceWorker.register('./se.js').catch(error => console.error(error));
           });
       }
       </script>
