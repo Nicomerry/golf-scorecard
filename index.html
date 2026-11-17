@@ -13,6 +13,14 @@
   <link id="appleTouchIconLink" rel="apple-touch-icon" />
   <link id="faviconLink" rel="icon" type="image/png" />
   <title>Golf Scorecard Pro — 18 Buche</title>
+  <link rel="manifest" href="./manifest.json">
+  <script>
+    if ('serviceWorker'in navigator) {
+      window.addEventListner('load', () => {
+        navigator.serviceWorker.register('./se.js').catch()
+          });
+      }
+      </script>
   <style>
     :root {
       --forest: #1B4332;
