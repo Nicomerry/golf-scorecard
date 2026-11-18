@@ -858,7 +858,6 @@
 
           const manifestLink = document.getElementById('pwaManifestLink');
           if (manifestLink && icon192 && icon512) {
-            manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestObj));
           }
         } catch (err) {
           // Ignora silenziosamente su ambienti senza Canvas
