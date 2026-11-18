@@ -1825,48 +1825,45 @@
       function bindCampiEvents() {
         const newBtn = document.getElementById('newCourseBtn');
         if (newBtn) newBtn.addEventListener('click', function () { openCourseEditorModal(null); });
-
         
         // BACKUP: ESPORTAZIONE
-        const exportBtn = document.getElementById('exportBackupBtn');
-        if (exportBtn) {
-          exportBtn.addEventListener('click', function () {
-            try {
-              const backup = {
-                app: 'Golf Scorecard Pro',
-                version: 1,
-                createdAt: new Date().toISOString(),
-                courses: state.courses,
-                rounds: state.rounds,
-                currentHole: state.currentHole
-              };
+        document.addEventListener('click', function (event) {
+          const btn = event.target.closest('#exportBackupBtn');
+          if (!btn) return;
 
-              const blob = new Blob(
-                [JSON.stringify(backup, null, 2)],
-                { type: 'application/json' }
-              );
+          try {
+            const backup = {
+              app: 'Golf Scorecard Pro',
+              version: 1,
+              createdAt: new Date().toISOString(),
+              courses: state.courses,
+              rounds: state.rounds,
+              currentHole: state.currentHole
+            };
 
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'Golf_Scorecard_Backup_' +
-                new Date().toISOString().slice(0, 10) + '.json';
+            const blob = new Blob(
+              [JSON.stringify(backup, null, 2)],
+              { type: 'application/json' }
+            );
 
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Golf_Scorecard_Backup_' +
+              new Date().toISOString().slice(0, 10) + '.json';
 
-              setTimeout(function () {
-                URL.revokeObjectURL(url);
-              }, 1000);
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
 
-              showToast('Backup esportato correttamente!');
-            } catch (error) {
-              showToast('Errore durante il backup');
-              console.error(error);
-            }
-          });
-        }
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+            showToast('Backup esportato correttamente!');
+          } catch (error) {
+            console.error('Errore backup:', error);
+            showToast('Errore: ' + error.message);
+          }
+        });
 
         // BACKUP: RIPRISTINO
         const importBtn = document.getElementById('importBackupBtn');
