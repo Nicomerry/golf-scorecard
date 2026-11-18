@@ -1826,6 +1826,130 @@
         const newBtn = document.getElementById('newCourseBtn');
         if (newBtn) newBtn.addEventListener('click', function () { openCourseEditorModal(null); });
 
+        
+        // BACKUP: ESPORTAZIONE
+        const exportBtn = document.getElementById('exportBackupBtn');
+        if (exportBtn) {
+          exportBtn.addEventListener('click', function () {
+            try {
+              const backup = {
+                app: 'Golf Scorecard Pro',
+                version: 1,
+                createdAt: new Date().toISOString(),
+                courses: state.courses,
+                rounds: state.rounds,
+                currentHole: state.currentHole
+              };
+
+              const blob = new Blob(
+                [JSON.stringify(backup, null, 2)],
+                { type: 'application/json' }
+              );
+
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'Golf_Scorecard_Backup_' +
+                new Date().toISOString().slice(0, 10) + '.json';
+
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+
+              setTimeout(function () {
+                URL.revokeObjectURL(url);
+              }, 1000);
+
+              showToast('Backup esportato correttamente!');
+            } catch (error) {
+              showToast('Errore durante il backup');
+              console.error(error);
+            }
+          });
+        }
+
+        // BACKUP: RIPRISTINO
+        const importBtn = document.getElementById('importBackupBtn');
+        const fileInput = document.getElementById('backupFileInput');
+
+        if (importBtn && fileInput) {
+          importBtn.addEventListener('click', function () {
+            fileInput.click();
+          });
+
+          fileInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function () {
+              try {
+                const backup = JSON.parse(reader.result);
+
+                const validCourses = Array.isArray(backup.courses) &&
+                  backup.courses.every(function (c) {
+                    return c &&
+                      typeof c.name === 'string' &&
+                      Array.isArray(c.pars) && c.pars.length === 18 &&
+                      Array.isArray(c.si) && c.si.length === 18;
+                  });
+
+                const validRounds = Array.isArray(backup.rounds) &&
+                  backup.rounds.every(function (r) {
+                    return r &&
+                      Array.isArray(r.pars) && r.pars.length === 18 &&
+                      Array.isArray(r.si) && r.si.length === 18 &&
+                      Array.isArray(r.players);
+                  });
+
+                const validHole = Number.isInteger(backup.currentHole) &&
+                  backup.currentHole >= 0 &&
+                  backup.currentHole <= 17;
+
+                if (
+                  backup.app !== 'Golf Scorecard Pro' ||
+                  backup.version !== 1 ||
+                  !validCourses ||
+                  !validRounds ||
+                  !validHole
+                ) {
+                  showToast('File backup non valido o incompatibile');
+                  return;
+                }
+
+                openConfirmModal({
+                  title: 'Ripristina backup',
+                  message: 'Attenzione: i dati attualmente presenti nell’app verranno sostituiti con quelli del backup. Vuoi continuare?',
+                  confirmLabel: 'Ripristina',
+                  danger: true,
+                  onConfirm: function () {
+                    state.courses = backup.courses;
+                    state.rounds = backup.rounds;
+                    state.currentHole = backup.currentHole;
+
+                    saveState();
+                    showToast('Backup ripristinato correttamente!');
+                    renderApp();
+                  }
+                });
+
+              } catch (error) {
+                showToast('Impossibile leggere il file backup');
+                console.error(error);
+              }
+            };
+
+            reader.onerror = function () {
+              showToast('Errore nella lettura del file');
+            };
+
+            reader.readAsText(file);
+            this.value = '';
+          });
+        }
+
+
         document.querySelectorAll('[data-play-course]').forEach(function (b) {
           b.addEventListener('click', function () {
             openNewRoundModal(this.getAttribute('data-play-course'));
