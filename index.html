@@ -1798,6 +1798,26 @@
             <h2 class="section-title">Campi Salvati (${state.courses.length})</h2>
             <button type="button" class="btn btn-primary" style="padding:8px 12px;" id="newCourseBtn">+ Nuovo Campo</button>
           </div>
+
+          <div class="card">
+            <h3 style="font-size:15px; color:var(--forest); margin:0 0 6px 0;">
+              💾 Backup e ripristino
+            </h3>
+            <p style="font-size:12px; color:var(--muted); margin:0 0 12px 0;">
+              Salva tutte le partite e i campi per poterli recuperare in futuro.
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <button type="button" class="btn btn-primary" id="exportBackupBtn">
+                ↓ Esporta backup
+              </button>
+              <button type="button" class="btn btn-secondary" id="importBackupBtn">
+                ↑ Ripristina backup
+              </button>
+            </div>
+            <input type="file" id="backupFileInput"
+              accept=".json,application/json" style="display:none;">
+          </div>
+
           ${cards}
         `;
       }
